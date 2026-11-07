@@ -65,9 +65,11 @@ blake3 += [env.Object('blake3/blake3_dispatch.c',
 sources = (
     Glob('*.c') +
     Glob('xxhash/*.c') +
-    Glob('blake2/*.c') +
     blake3 +
     Glob('sha3/*.c')
 )
+
+if not env['HAVE_LIBB2']:
+    sources += Glob('blake2/*.c')
 
 Return('sources')

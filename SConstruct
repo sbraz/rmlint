@@ -62,6 +62,12 @@ AddOption(
     help='Allow Shredder installation into an externally managed Python environment',
 )
 
+AddOption(
+    '--blake2', default='auto',
+    dest='blake2', choices=['auto', 'system', 'bundled'],
+    help='BLAKE2 implementation: libb2 if found (auto), libb2 or fail (system) or the vendored copy (bundled)',
+)
+
 for suffix in OPTIONAL_FLAGS:
     AddOption(
         f'--without-{suffix}', action='store_false',
@@ -299,9 +305,16 @@ conf.check_pkg('blkid', 'HAVE_BLKID', required=False)
 conf.env['HAVE_JSON_GLIB'] = 0
 conf.check_pkg('json-glib-1.0', 'HAVE_JSON_GLIB', required=True)
 
+conf.env['HAVE_LIBB2'] = 0
+if GetOption('blake2') != 'bundled':
+    conf.check_pkg('libb2', 'HAVE_LIBB2', required=GetOption('blake2') == 'system')
+
 packages = ['glib-2.0', 'json-glib-1.0']
 if conf.env['HAVE_BLKID']:
     packages.append('blkid')
+
+if conf.env['HAVE_LIBB2']:
+    packages.append('libb2')
 
 if conf.env['HAVE_GIO_UNIX']:
     packages.append('gio-unix-2.0')
@@ -510,6 +523,7 @@ if GetOption('show_config'):
     Find non-stripped binaries (needs libelf)             : {libelf}
     Optimize using ioctl(FS_IOC_FIEMAP) (needs linux)     : {fiemap}
     Metro SSE4.2 dispatch                                 : {crc_dispatch}
+    BLAKE2 from libb2 instead of the vendored copy        : {libb2}
     BLAKE3 uses SIMD...
         ...x86_64 assembly                                : {blake3_simd_asm}
         ...x86 C intrinsics                               : {blake3_simd_c}
@@ -545,6 +559,7 @@ if GetOption('show_config'):
         libelf=yesno(env['HAVE_LIBELF']),
         fiemap=yesno(env['HAVE_FIEMAP']),
         crc_dispatch=yesno(env['HAVE_BUILTIN_CPU_SUPPORTS'] & env['HAVE_MM_CRC32_U64']),
+        libb2=yesno(env['HAVE_LIBB2']),
 
         blake3_simd_asm=yesno(env['IS_X86_64']),
         blake3_simd_c=yesno(env['IS_X86'] and not env['IS_X86_64']),

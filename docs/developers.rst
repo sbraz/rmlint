@@ -202,6 +202,13 @@ Arguments
     environment looks like, then carry on with the target. Add ``-n``
     to stop at the summary instead.
 
+:--blake2=auto|system|bundled:
+
+    Choose the BLAKE2 implementation. ``auto`` (the default) uses the system
+    ``libb2`` if ``pkg-config`` finds it and the vendored copy otherwise.
+    ``system`` requires ``libb2`` and fails if it is missing. ``bundled``
+    always uses the vendored copy.
+
 :--without-libelf:
     
     Do not link with ``libelf``, which is needed for nonstripped binary

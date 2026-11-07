@@ -36,7 +36,11 @@
 #include "utilities.h"
 
 #include "checksums/highwayhash.h"
+#if HAVE_LIBB2
+#include <blake2.h>
+#else
 #include "checksums/blake2/blake2.h"
+#endif
 #include "checksums/blake3/blake3.h"
 #include "checksums/metrohash.h"
 #include "checksums/murmur3.h"
